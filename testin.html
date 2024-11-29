@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive PyScript Example</title>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+</head>
+<body>
+    <h1>Interactive PyScript Example</h1>
+
+    <p>Enter a number and click the button:</p>
+    <input id="num-input" type="number">
+    <button id="calc-btn">Calculate Square</button>
+    <p id="result"></p>
+
+    <py-script>
+        from pyscript import Element
+
+        # Define a function that will be triggered by the button click
+        def calculate_square(event):
+            num = int(Element("num-input").element.value)  # Get value from input field
+            result = num ** 2
+            Element("result").write(f"The square of {num} is {result}")
+
+        # Bind the function to the button click event
+        Element("calc-btn").bind("click", calculate_square)
+    </py-script>
+</body>
+</html>
