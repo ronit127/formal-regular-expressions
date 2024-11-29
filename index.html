@@ -24,8 +24,8 @@
             result = num ** 2
             Element("result").write(f"The square of {num} is {result}")
 
-        # Bind the function to the button click event
-        Element("calc-btn").bind("click", calculate_square)
+        # Use the 'on' method to bind the function to the button click event
+        Element("calc-btn").on("click", calculate_square)
     </py-script>
 </body>
 </html>
