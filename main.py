@@ -303,7 +303,8 @@ def validate_input(event):
     else:
         result_div.innerText = f"❌ Input does NOT match the regex"
   
-        
+document.querySelector("button[py-click='update_regex']").addEventListener("click", update_regex)
+document.querySelector("button[py-click='validate_input']").addEventListener("click", validate_input)  
 # def translate_english(event):
 #     input_text = document.querySelector("#english")
 #     english = input_text.value
