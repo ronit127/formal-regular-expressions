@@ -294,8 +294,9 @@ def validate_input(event):
     result_div = document.querySelector("#validation-result")
   
         # Try to compile the regex pattern and match with input string
-    G, endkeys = parse(regex_pattern)
-    res = checkIfAccepted(G, s, endkeys)
+   # G, endkeys = parse(regex_pattern)
+  #  res = checkIfAccepted(G, s, endkeys)
+    res = True
         #pattern = re.compile(regex_pattern)
     if res:
         result_div.innerText = f"✅ Input matches the regex"
