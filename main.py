@@ -281,21 +281,15 @@ def drawGraph(G):
 
 #print(crush_epsilon("1+(1+e)+e+eeeee(1)"))
 
-regex_pattern = ""
-
-def update_regex(event):
-    global regex_pattern
-    input_field = document.querySelector("#regex")
-    regex_pattern = input_field.value
-
 def validate_input(event):
+    regex_pattern = document.querySelector("#regex")
     input_field = document.querySelector("#input-text")
     input_text = input_field.value
     result_div = document.querySelector("#validation-result")
   
-        # Try to compile the regex pattern and match with input string
-   # G, endkeys = parse(regex_pattern)
-  #  res = checkIfAccepted(G, s, endkeys)
+    # Try to compile the regex pattern and match with input string
+    # G, endkeys = parse(regex_pattern)
+    #  res = checkIfAccepted(G, s, endkeys)
     res = True
         #pattern = re.compile(regex_pattern)
     if res:
@@ -303,8 +297,8 @@ def validate_input(event):
     else:
         result_div.innerText = f"❌ Input does NOT match the regex"
   
-document.querySelector("button[py-click='update_regex']").addEventListener("click", update_regex)
-document.querySelector("button[py-click='validate_input']").addEventListener("click", validate_input)  
+# document.querySelector("button[py-click='update_regex']").addEventListener("click", update_regex)
+# document.querySelector("button[py-click='validate_input']").addEventListener("click", validate_input)  
 # def translate_english(event):
 #     input_text = document.querySelector("#english")
 #     english = input_text.value
