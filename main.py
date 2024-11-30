@@ -248,7 +248,7 @@ def checkIfAccepted(G, s, endkeys): #NOT WORKING to see if something is NOT in t
 
 #print(crush_epsilon("1+(1+e)+e+eeeee(1)"))
 
-def validate_input(event):
+def translate_english(event):
     regex_pattern = document.querySelector("#regex")
     input_field = document.querySelector("#input-text")
     input_text = input_field.value
