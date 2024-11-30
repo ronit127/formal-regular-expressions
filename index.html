@@ -25,7 +25,7 @@
             Element("result").write(f"The square of {num} is {result}")
 
         # Use the 'add_event_listener' method to bind the function to the button click event
-        Element("calc-btn").element.add_event_listener("click", calculate_square)
+        Element("calc-btn").add_event_listener("click", calculate_square)
     </py-script>
 </body>
 </html>
