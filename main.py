@@ -236,6 +236,7 @@ def checkIfAccepted(G, s, endkeys): #NOT WORKING to see if something is NOT in t
     
 def translate_english(event):
     input_text = document.querySelector("#english")
+    input_texto = document.querySelector("#english2")
     english = input_text.value
     output_div = document.querySelector("#output")
-    output_div.innerText = "HELLO"
+    output_div.innerText = input_texto
