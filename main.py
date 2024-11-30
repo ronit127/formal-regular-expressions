@@ -89,15 +89,6 @@ def crush_epsilon(reg_expr):
         else: result.append(char)
     return ''.join(result)
 
-def parse(reg_expr):
-    G = nx.DiGraph()
-    reg_expr = crush_epsilon(reg_expr)
-   # print(reg_expr)
-    G,none, endkeys = genGraph(reg_expr, 0, G)
-   # print(endkeys)
-    drawGraph(G)
-    return G, endkeys
-    
 def genGraph(reg_expr, prev_key, G):
     reg_expr = remove_outer_parentheses(reg_expr)
     if isSimple(reg_expr) and "*" not in reg_expr:
@@ -246,30 +237,6 @@ def checkIfAccepted(G, s, endkeys): #NOT WORKING to see if something is NOT in t
 
     return False
 
-def drawGraph(G):
-    # Layout
-    pos = nx.shell_layout(G)
-
-    # Generate combined labels with keys
-    combined_labels = {
-        node: f"{node}:{data.get('label', [None])[0]}" 
-        for node, data in G.nodes(data=True)
-    }
-    
-    node_colors = []
-    for node, data in G.nodes(data=True):
-        if "label" in data and len(data["label"]) > 1 and data["label"][1] == "kleene_child":
-            node_colors.append("orange")  # Highlight kleene_child nodes in orange
-        else:
-            node_colors.append("lightblue")  # Default color for other nodes
-
-
-    # Draw graph
-    nx.draw(G, pos, with_labels=False, node_color=node_colors, node_size = 1000)
-    nx.draw_networkx_labels(G, pos, combined_labels, font_size=12)
-   
-    plt.show()
-
 #G, endkeys = parse("(a+b*+c)*")
 #print(endkeys)
 # Example string
@@ -293,9 +260,9 @@ def validate_input(event):
     res = True
         #pattern = re.compile(regex_pattern)
     if res:
-        result_div.innerText = f"✅ Input matches the regex"
+        result_div.innerText = "Input matches the regex"
     else:
-        result_div.innerText = f"❌ Input does NOT match the regex"
+        result_div.innerText = "Input does NOT match the regex"
   
 # document.querySelector("button[py-click='update_regex']").addEventListener("click", update_regex)
 # document.querySelector("button[py-click='validate_input']").addEventListener("click", validate_input)  
