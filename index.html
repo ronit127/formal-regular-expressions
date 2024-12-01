@@ -3,17 +3,17 @@
   <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <title>🦜 Polyglot - Piratical PyScript</title>
+      <title>Formal Languages - Regular Expressions </title>
       <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
       <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
   </head>
   <body>
-    <h1>Polyglot 🦜 💬 🇬🇧 ➡️ 🏴‍☠️</h1>
-    <p>Translate English into Pirate speak...</p>
+    <h1>Regex Checker 🦜</h1>
+    <p>Check if a formal regular expression accepts a string</p>
     <input type="text" id="english" placeholder="Type English here..." />
   
     <input type="text" id="english2" placeholder="Type English here..." />
-    <button py-click="translate_english">Translate</button>
+    <button py-click="translate_english">Check</button>
     <div id="output"></div>
     <script type="py" src="./main.py" config="./pyscript.json"></script>
   </body>
