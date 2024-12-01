@@ -237,6 +237,12 @@ def checkIfAccepted(G, s, endkeys): #NOT WORKING to see if something is NOT in t
 def translate_english(event):
     input_text = document.querySelector("#english")
     input_texto = document.querySelector("#english2")
+    G = nx.DiGraph()
+    G,none, endkeys = genGraph(input_text.value, 0, G)
+
+    ret = checkIfAccepted(G, input_texto.value, endkeys)
+
+    
     english = input_text.value
     output_div = document.querySelector("#output")
-    output_div.innerText = input_texto
+    output_div.innerText = ret
