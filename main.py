@@ -193,7 +193,8 @@ def genGraph(reg_expr, prev_key, G):
 
 from collections import defaultdict
 
-  stack = []    # start key, and index of string seen
+def checkIfAccepted(G, s, endkeys): #NOT WORKING to see if something is NOT in the language (use recursion?)
+    stack = []    # start key, and index of string seen
     visited = defaultdict(int)
     str = G.nodes[0]["label"][0]
     if str == "root" or str == "*" or str == "e":
