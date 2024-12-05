@@ -1,17 +1,73 @@
 <!DOCTYPE html>
 <html>
   <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <title>Formal Languages - Regular Expressions </title>
-      <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
-      <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Formal Languages - Regular Expressions</title>
+    <link
+      rel="stylesheet"
+      href="https://pyscript.net/releases/2024.11.1/core.css"
+    />
+    <script
+      type="module"
+      src="https://pyscript.net/releases/2024.11.1/core.js"
+    ></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9fafc;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+      h1 {
+        color: #3b82f6;
+        margin-top: 30px;
+      }
+      p {
+        color: #374151;
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      #english,
+      #english2 {
+        width: 80%;
+        max-width: 400px;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #d1d5db;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background-color: #10b981;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #059669;
+      }
+      #output {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #d1d5db;
+        border-radius: 5px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
   </head>
   <body>
     <h1>Regex Checker 🦜</h1>
     <p>Check if a formal regular expression accepts a string (use e for epsilon)</p>
     <input type="text" id="english" placeholder="Type regex here..." />
-  
     <input type="text" id="english2" placeholder="Type input string here..." />
     <button py-click="translate_english">Check</button>
     <div id="output"></div>
