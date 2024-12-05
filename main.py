@@ -244,9 +244,9 @@ def process_regex(event):
     ret = checkIfAccepted(G, input_texto.value, endkeys)
     return_text = ""
     if ret:
-        return_text = "The regular expression accepts the string."
+        return_text = "True"
     else:
-        return_text = "The regular expression does NOT accept the string."
+        return_text = "False"
     
     english = input_text.value
     output_div = document.querySelector("#output")
