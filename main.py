@@ -242,8 +242,12 @@ def process_regex(event):
     G,none, endkeys = genGraph(input_text.value, 0, G)
 
     ret = checkIfAccepted(G, input_texto.value, endkeys)
-
+    return_text = ""
+    if ret:
+        return_text = "The regular expression accepts the string."
+    else:
+        return_text = "The regular expression does NOT accept the string."
     
     english = input_text.value
     output_div = document.querySelector("#output")
-    output_div.innerText = ret
+    output_div.innerText = return_text
