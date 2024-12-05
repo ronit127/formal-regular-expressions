@@ -17,13 +17,13 @@
   <body>
     <h1>Regex Checker 🦜</h1>
     <p>Check if a formal regular expression accepts a string (use "e" for ε)</p>
-    <p style="color: #6b7280; font-style: italic; font-size: 14px;">
-    Note: The acceptable alphabet includes <strong>any character except "e"</strong>.
-    </p>
     <input type="text" id="regex" placeholder="Type regex here...         (Example: 1+10*1+(10+1)*)" />
     <input type="text" id="input_string" placeholder="Type input string here...         (Example: 1001)" />
     <button py-click="process_regex">Check</button>
     <div id="output"></div>
+    <p style="color: #6b7280; font-style: italic; font-size: 14px;">
+    Notes: Use "e" for ε. The acceptable alphabet includes <strong>any character except "e"</strong>. 
+    </p>
     <script type="py" src="./main.py" config="./pyscript.json"></script>
   </body>
 </html>
