@@ -17,9 +17,9 @@
   <body>
     <h1>Regex Checker 🦜</h1>
     <p>Check if a formal regular expression accepts a string (use "e" for ε)</p>
-    <input type="text" id="english" placeholder="Type regex here...         (Example: 1+10*1+(10+1)*)" />
-    <input type="text" id="english2" placeholder="Type input string here...         (Example: 1001)" />
-    <button py-click="translate_english">Check</button>
+    <input type="text" id="regex" placeholder="Type regex here...         (Example: 1+10*1+(10+1)*)" />
+    <input type="text" id="input_string" placeholder="Type input string here...         (Example: 1001)" />
+    <button py-click="process_regex">Check</button>
     <div id="output"></div>
     <script type="py" src="./main.py" config="./pyscript.json"></script>
   </body>
