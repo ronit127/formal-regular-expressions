@@ -235,9 +235,9 @@ def checkIfAccepted(G, s, endkeys):
 
     return False
     
-def translate_english(event):
-    input_text = document.querySelector("#english")
-    input_texto = document.querySelector("#english2")
+def process_regex(event):
+    input_text = document.querySelector("#regex")
+    input_texto = document.querySelector("#input_string")
     G = nx.DiGraph()
     G,none, endkeys = genGraph(input_text.value, 0, G)
 
