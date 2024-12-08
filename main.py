@@ -209,7 +209,7 @@ def checkIfAccepted(G, s, endkeys):
         curr, index = stack.pop()
         visited[curr]+=1
 
-        if visited[curr] > (G.size())**2 + 1:
+        if visited[curr] > (len(s))**2 + G.size()**2 + 1:
             return False
         print(curr)
         print(index)
