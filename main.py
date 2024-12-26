@@ -85,163 +85,138 @@ def crush_epsilon(reg_expr):
                     result.append(char)
         else: result.append(char)
     return ''.join(result)
+
+def drawGraph(G):
+    # Layout
+    pos = nx.shell_layout(G)
+
+    # Generate combined labels with keys
+    combined_labels = {
+        node: f"{node}:{data.get('label', [None])[0]}" 
+        for node, data in G.nodes(data=True)
+    }
     
-def genGraph(reg_expr, prev_key, G):
-    reg_expr = remove_outer_parentheses(reg_expr)
-    if isSimple(reg_expr) and "*" not in reg_expr:
-        G.add_node(prev_key, label = [reg_expr, "1"])
-        return G, prev_key + 1, [prev_key]      # return Graph, last used key (such tthat it is safe for the next call to use said key) and list of end keys
-    if isSimple(reg_expr) and "*" in reg_expr:
-        end_key = prev_key
-        str = reg_expr
-        while "*" in str:
-            kleene_index = str.index('*')
-            before_kleene = str[:kleene_index - 1]
-            kleene = str[kleene_index - 1]
-
-            str = str[kleene_index + 1:]
-            if len(before_kleene) > 0:
-                G.add_nodes_from([(prev_key, {'label': [before_kleene, "2"]}), 
-                  (prev_key + 1, {'label': ["*", "3"]}), 
-                  (prev_key + 2, {'label': [kleene, "3"]})])
-
-                G.add_edges_from([(prev_key, prev_key + 1),
-                              (prev_key + 1, prev_key + 2),
-                              (prev_key + 2, prev_key + 1)])
-                end_key = prev_key + 1
-                if len(str) > 0:
-                    G.add_node(prev_key + 3, label = [str, "2"])
-                    G.add_edge(prev_key + 1, prev_key + 3)
-                    end_key = prev_key + 3
-                prev_key += 3
-            else:
-                G.add_nodes_from([
-                  (prev_key, {'label': ["*", "3"]}), 
-                  (prev_key + 1, {'label': [kleene, "3"]})])
-                G.add_edges_from([(prev_key, prev_key + 1),
-                              (prev_key + 1, prev_key)])
-                end_key = prev_key
-                if len(str) > 0:
-                    G.add_node(prev_key + 2, label = [str, "2"])
-                    G.add_edge(prev_key, prev_key + 2)
-                    end_key = prev_key + 2
-                prev_key += 2
-        if len(str) > 0:
-            return G, prev_key + 1, [end_key] 
-        else: return G, prev_key, [end_key] 
-    # so far simple cases w/out () or + handled.
-    parts = split_reg_expr(reg_expr)
-    if len(parts) == 1:
-        # need to handle more complex cases
-
-        if "(" in reg_expr or ")" in reg_expr:
-    
-            before, paren, after = processParenthesis(reg_expr)
-            print(before)
-            print(paren)
-            print(after)
-            if len(before) > 0:
-                none, prev_key, end_keys = genGraph(before, prev_key, G)
-                #print(end_keys)
-                print(prev_key)
-                #return G, prev_key, end_keys
-                G.add_node(prev_key, label = ["temp", "temp"])
-                G.add_edge(end_keys[0], prev_key)
-
-            
-            if after.startswith("*"):
-                old_prev_kleene = prev_key
-                G.add_node(prev_key, label = ["*", "3.1"])
-                G.add_node(prev_key + 1, label = ["temp", "temp"])
-                G.add_edge(prev_key, prev_key + 1)
-                prev_key += 1
-
-            none, prev_key, end_keys = genGraph(paren, prev_key, G)
-            #print(end_keys) 
-            #print("end keys ^")
-            if after.startswith("*"):
-                after = after[1:]
-                print(old_prev_kleene)
-                for e in end_keys:
-                    G.add_edge(e, old_prev_kleene)
-                end_keys = [old_prev_kleene]
-
-            old_prev = prev_key
-            if len(after) > 0:
-                none, prev_key, end_keys2 = genGraph(after, prev_key, G)
-                #print(end_keys)
-                for e in end_keys:
-                    G.add_edge(e, old_prev)
-                end_keys = end_keys2
-
-            return G, prev_key, end_keys
-        
-    end_keys = []
-    root_key = prev_key
-    G.add_node(root_key, label = ["root", "root"])
-    prev_key += 1
-
-    for part in parts:
-        old_prev = prev_key
-        none, prev_key, end_key = genGraph(part, prev_key, G)
-
-        G.add_edge(root_key, old_prev)
-        prev_key += 1
-        end_keys.extend(end_key)
-
-    return G, prev_key, end_keys
-
-from collections import defaultdict
-
-def checkIfAccepted(G, s, endkeys):
-    stack = []    # start key, and index of string seen
-    visited = defaultdict(int)
-    str = G.nodes[0]["label"][0]
-    if str == "root" or str == "*" or str == "e":
-        stack.append((0, 0))
-    else:
-        if s.startswith(str):
-            stack.append((0, len(str)))
+    node_colors = []
+    for node, data in G.nodes(data=True):
+        if "label" in data and len(data["label"]) > 1 and data["label"][1] == "kleene_child":
+            node_colors.append("orange")  # Highlight kleene_child nodes in orange
         else:
-            return False
+            node_colors.append("lightblue")  # Default color for other nodes
+
+
+    # Draw graph
+    nx.draw(G, pos, with_labels=False, node_color=node_colors, node_size = 1000)
+    nx.draw_networkx_labels(G, pos, combined_labels, font_size=12)
+   
+    plt.show()
+
+def genGraph(reg_expr, start_key, G):   # returns end key
+    reg_expr = remove_outer_parentheses(reg_expr)
+    
+    G.add_node(start_key, label = "q") #q
+    temp_key = start_key
+ 
+    if isSimple(reg_expr) and "*" not in reg_expr:
+        temp_key += 1
+        for a, s in enumerate(reg_expr):
+            if s == "e" : s = "\u03B5"
+            G.add_node(temp_key, label = "") 
+            G.add_edge(temp_key - 1, temp_key, label = s)
+            temp_key += 1
+        G.add_node(temp_key - 1, label = "f") 
+        return temp_key - 1
+    
+    parts = split_reg_expr(reg_expr)
+    print(parts)
+    if len(parts) == 1:
+        if "(" in reg_expr or ")" in reg_expr:
+            before, paren, after = processParenthesis(reg_expr)
+        else:
+            kleene_index = reg_expr.index('*')
+            before = reg_expr[:kleene_index - 1]
+            paren = reg_expr[kleene_index - 1]
+            after = reg_expr[kleene_index:] 
+        print(before, paren, after)
+        if len(before) > 0:
+            end_key = genGraph(before, temp_key + 1, G)
+            G.add_edge(start_key, temp_key + 1, label = "\u03B5")
+            temp_key = end_key
+            start_key = end_key
+
+        end_key = genGraph(paren, temp_key + 1, G)    
+        if after.startswith("*"):       
+            G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge
+            G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge    (end_key -> temp_key + 1)
+            temp_key = end_key + 1
+            G.add_node(temp_key, label = "f")
+            G.add_edge(start_key, temp_key, label = "\u03B5")  # direct edge
+            G.add_edge(end_key, temp_key, label = "\u03B5") 
+            after = after[1:]
+            end_key = temp_key
+
+        if len(after) > 0:
+            end_key = genGraph(after, temp_key + 1, G)
+            G.add_edge(temp_key, temp_key + 1, label = "\u03B5")
+            temp_key = end_key
+        return end_key
+
+    end_keys = []
+    for part in parts:
+          end_key = genGraph(part, temp_key + 1, G)
+          G.add_edge(start_key, temp_key + 1, label = "\u03B5")
+          temp_key = end_key
+          end_keys.append(end_key)
+    
+    temp_key = max(end_keys) + 1
+    G.add_node(temp_key, label = "f") #f
+    for end_key in end_keys:
+        G.add_edge(end_key, temp_key, label = "\u03B5")
+    return temp_key
+
+def checkIfAccepted(G, s, endKey):
+   
+    def getEpsilonClosure(state):   # gets all epsilon reachable states from current state
+        closure = [state]
+        stack = [state]
+        visited = {state: False for state in G.nodes}
+
+        while stack:
+            curr = stack.pop()
+            visited[curr] = True
+            for neighbor in G.neighbors(curr):
+                if not visited[neighbor]:             
+                    edge = G.edges[curr, neighbor]["label"]
+                    if edge == "\u03B5":
+                        closure.append(neighbor)
+                        stack.append(neighbor)
+        return closure
+    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
+    
+    if s == "e": return endKey in EpsilonDict[0]
+    stack = []
+    stack.append((0, 0))     # key, and index achieved 
     while stack:
-        #print(len(stack))
         curr, index = stack.pop()
-        visited[curr]+=1
-
-        if visited[curr] > (len(s))**2 + G.size()**2 + 1:
-            return False
-        print(curr)
-        print(index)
-        #print(G.nodes[curr]["label"][0])
-        if curr in endkeys: canEnd = True
-        else: canEnd = False
-
-        #s = "e" if epsilon
-        if s == "e" and G.nodes[curr]["label"][0] in ["e", "*",""] and canEnd:
-            return True
-        if len(s) == index and canEnd:
-            return True
-
-        for neighbor in G.neighbors(curr):
-           str = G.nodes[neighbor]["label"][0]
-           if str == "root" or str == "*" or str == "e":
-                stack.append((neighbor, index))
-           else:
-                if s[index:].startswith(str):
-                    #index += len(str) 
-                    stack.append((neighbor, index + len(str)))
-        
-
+        if (curr == endKey or endKey in EpsilonDict[curr]) and index == len(s): return True
+        for state in EpsilonDict[curr]:
+            for neighbor in G.neighbors(state):  
+                edge = G.edges[state, neighbor].get("label", None)
+                if s[index:].startswith(edge):
+                    stack.append((neighbor, index + len(edge)))
+       
+        for neighbor in G.neighbors(curr):  
+            edge = G.edges[curr, neighbor].get("label", None)
+            if s[index:].startswith(edge):
+                stack.append((neighbor, index + len(edge)))
     return False
     
 def process_regex(event):
     input_text = document.querySelector("#regex")
     input_texto = document.querySelector("#input_string")
     G = nx.DiGraph()
-    G,none, endkeys = genGraph(input_text.value, 0, G)
+    endkey = genGraph(input_text.value, 0, G)
 
-    ret = checkIfAccepted(G, input_texto.value, endkeys)
+    ret = checkIfAccepted(G, input_texto.value, endkey)
     return_text = ""
     if ret:
         return_text = "True"
