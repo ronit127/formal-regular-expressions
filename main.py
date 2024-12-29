@@ -118,10 +118,10 @@ def genGraph(reg_expr, start_key, G):   # returns end key
             G.add_edge(start_key, temp_key + 1, label = "\u03B5")
             temp_key = end_key
             start_key = end_key
-
-        end_key = genGraph(paren, temp_key + 1, G)    
+        
+        end_key = genGraph(paren, temp_key + 1, G)   
+        G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge 
         if after.startswith("*"):       
-            G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge
             G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge    (end_key -> temp_key + 1)
             temp_key = end_key + 1
             G.add_node(temp_key, label = "f")
