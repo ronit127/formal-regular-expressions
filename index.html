@@ -15,15 +15,28 @@
     ></script>   
   </head>
   <body>
-    <h1>Regex Checker 🦜</h1>
-    <p>Check if a formal regular expression accepts a string.</p>
-    <input type="text" id="regex" placeholder="Type regex here...         (Example: 1+10*1+(10+1)*)" />
-    <input type="text" id="input_string" placeholder="Type input string here...         (Example: 1001)" />
-    <button py-click="process_regex">Check</button>
-    <div id="output" style="font-weight: 400;"></div>
-    <p style="color: #6b7280; font-style: italic; font-size: 14px;">
-    Notes: Use "e" for ε. The acceptable alphabet includes <strong>any character except "e"</strong>. 
-    </p>
+    <div class="container">
+      <h1>Regex Checker 🦜</h1>
+      <p>Check if a formal regular expression accepts a string.</p>
+      <input type="text" id="regex" placeholder="Type regex here...       (Example: 2+(10*+1)*)" />
+      <input type="text" id="input_string" placeholder="Type input string here...     (Example: 1001)" />
+      <button py-click="process_regex">Check</button>
+      <div id="output"></div>
+
+      <p class="note">
+        Notes: Use "e" for ε. The acceptable alphabet includes <strong>any character except "e"</strong>.
+      </p>
+    </div>
+  
+    <div class="container">
+      <h2>Regex Equivalence Checker 🔁</h2>
+      <p>Check if two formal regular expressions are equivalent.</p>
+      <input type="text" id="regex1" placeholder="Type first regex here..." />
+      <input type="text" id="regex2" placeholder="Type second regex here..." />
+      <button py-click="check_equivalence">Check Equivalence</button>
+      <div id="output2"></div>
+    </div>
+    
     <script type="py" src="./main.py" config="./pyscript.json"></script>
   </body>
 </html>

@@ -86,30 +86,6 @@ def crush_epsilon(reg_expr):
         else: result.append(char)
     return ''.join(result)
 
-def drawGraph(G):
-    # Layout
-    pos = nx.shell_layout(G)
-
-    # Generate combined labels with keys
-    combined_labels = {
-        node: f"{node}:{data.get('label', [None])[0]}" 
-        for node, data in G.nodes(data=True)
-    }
-    
-    node_colors = []
-    for node, data in G.nodes(data=True):
-        if "label" in data and len(data["label"]) > 1 and data["label"][1] == "kleene_child":
-            node_colors.append("orange")  # Highlight kleene_child nodes in orange
-        else:
-            node_colors.append("lightblue")  # Default color for other nodes
-
-
-    # Draw graph
-    nx.draw(G, pos, with_labels=False, node_color=node_colors, node_size = 1000)
-    nx.draw_networkx_labels(G, pos, combined_labels, font_size=12)
-   
-    plt.show()
-
 def genGraph(reg_expr, start_key, G):   # returns end key
     reg_expr = remove_outer_parentheses(reg_expr)
     
@@ -209,7 +185,135 @@ def checkIfAccepted(G, s, endKey):
             if s[index:].startswith(edge):
                 stack.append((neighbor, index + len(edge)))
     return False
+
+def NFAtoDFA(G):
+    def getEpsilonClosure(state):   # gets all a- reachable states from current state (reachable to the state but not beyond)
+        closure = {state}
+        stack = [state]
+        visited = {state: False for state in G.nodes}
+
+        while stack:
+            curr = stack.pop()
+            visited[curr] = True
+            for neighbor in G.neighbors(curr):
+                if not visited[neighbor]:             
+                    edge = G.edges[curr, neighbor]["label"]
+                    if edge == "\u03B5":
+                        closure.add(neighbor)
+                        stack.append(neighbor)
+        return closure
+    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
     
+    H = nx.MultiDiGraph()
+    start_state = tuple(sorted(EpsilonDict[0]))
+    stack = [start_state]
+    
+    H.add_node(start_state)  #start node of H
+    H.nodes[start_state]["is_start"] = True
+
+    def getAlphabet(G):
+        alphabet = set()
+        for edge in G.out_edges(data = True):
+            if edge[2]["label"] != "\u03B5":
+                alphabet.add(edge[2]["label"])
+        return alphabet
+    alphabet = getAlphabet(G)
+    
+    while stack:
+        curr_state = stack.pop()
+        for a in alphabet:
+            new_state = set()
+            for state in curr_state:
+                for edge in G.out_edges(state, data = True):
+                    if a == edge[2]["label"]:
+                        new_state.update(EpsilonDict[edge[1]])
+            if not any(data["label"] == a for _, _, data in H.edges(tuple(sorted(curr_state)), data=True)):
+                H.add_edge(tuple(sorted(curr_state)), tuple(sorted(new_state)), label = a)
+                if len(new_state) != 0:
+                    stack.append(tuple(sorted(new_state)))
+            # if len(new_state) == 0:
+            #     for a in alphabet:
+            #         H.add_edge(tuple(sorted(new_state)), tuple(sorted(new_state)), label = a)
+    
+    if () in H.nodes():
+        for a in alphabet:
+            H.add_edge((), (), label = a)
+
+    max_key = max(G.nodes)
+    for node in H.nodes():
+        if max_key in node:
+            H.nodes[node]["is_end"] = True
+                
+    return H
+
+def checkIfEquivalent(reg1, reg2):
+    if reg1 == "" or reg2 == "" and reg1 != reg2: return False
+    G1 = nx.DiGraph()
+    G2 = nx.DiGraph()
+    genGraph(reg1, 0, G1)
+    genGraph(reg2, 0, G2)
+    D1 = NFAtoDFA(G1)
+    D2 = NFAtoDFA(G2)
+  
+    def getAlphabet(G):
+        alphabet = set()
+        for edge in G.out_edges(data = True):
+            if edge[2]["label"] != "\u03B5":
+                alphabet.add(edge[2]["label"])
+        return alphabet
+    if getAlphabet(G1) != getAlphabet(G2):
+        return False
+    alphabet = getAlphabet(G1)
+
+    Prod = nx.MultiDiGraph()
+    start1 = ()
+    start2 = ()
+    end1 = []
+    end2 = []
+    for g, g_data in D1.nodes(data=True):
+        for h, h_data in D2.nodes(data=True):
+            if g_data.get("is_start", False):
+                start1 = g
+            if h_data.get("is_start", False):
+                start2 = h
+            if g_data.get("is_end", False):
+                end1.append(g)
+            if h_data.get("is_end", False):
+                end2.append(h)
+
+            Prod.add_node((g,h))
+            
+   
+    for node in Prod.nodes():
+        g, h = node     # g is D1, h is D2
+        for a in alphabet:
+            for _, neighbor, edge_attr in D1.out_edges(g, data= True):
+                if edge_attr["label"] == a:
+                    g_r = neighbor
+            for _, neighbor, edge_attr in D2.out_edges(h, data= True):
+                if edge_attr["label"] == a:
+                    h_r = neighbor    
+            Prod.add_edge((g,h), (g_r, h_r), label = a)
+
+    start = (start1, start2)
+    Prod.nodes[start]["is_start"] = True
+
+    stack = [start]
+    visited = set([start])
+
+    while stack:
+        curr = stack.pop()  # curr[0] has D1 node, curr[1] has D2 node
+        visited.add(curr)
+
+        if (curr[0] in end1) != (curr[1] in end2):
+            return False
+
+        for neighbor in Prod.neighbors(curr):
+            if neighbor not in visited:
+                stack.append(neighbor)
+
+    return True
+
 def process_regex(event):
     input_text = document.querySelector("#regex")
     input_texto = document.querySelector("#input_string")
@@ -223,6 +327,19 @@ def process_regex(event):
     else:
         return_text = "False"
     
-    english = input_text.value
     output_div = document.querySelector("#output")
+    output_div.innerText = return_text
+
+def check_equivalence(event):
+    reg1 = document.querySelector("#regex1")
+    reg2 = document.querySelector("#regex2")
+    
+    ret = checkIfEquivalent(reg1.value, reg2.value)
+    return_text = ""
+    if ret:
+        return_text = "Equivalent"
+    else:
+        return_text = "Not Equivalent"
+
+    output_div = document.querySelector("#output2")
     output_div.innerText = return_text
