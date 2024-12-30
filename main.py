@@ -112,7 +112,7 @@ def genGraph(reg_expr, start_key, G):   # returns end key
             before = reg_expr[:kleene_index - 1]
             paren = reg_expr[kleene_index - 1]
             after = reg_expr[kleene_index:] 
-        print(before, paren, after)
+       
         if len(before) > 0:
             end_key = genGraph(before, temp_key + 1, G)
             G.add_edge(start_key, temp_key + 1, label = "\u03B5")
@@ -121,6 +121,8 @@ def genGraph(reg_expr, start_key, G):   # returns end key
         
         end_key = genGraph(paren, temp_key + 1, G)   
         G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge 
+        temp_key = end_key
+        
         if after.startswith("*"):       
             G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge    (end_key -> temp_key + 1)
             temp_key = end_key + 1
