@@ -1,8 +1,20 @@
+import random
 import networkx as nx
 from pyscript import document
 
 def isSimple(s):
     return "(" not in s and ")" not in s and "/" not in s and "+" not in s
+
+def is_balanced(s):     
+    stack = []
+    for char in s:
+        if char == '(':
+            stack.append(char)
+        elif char == ')':
+            if not stack:
+                return False
+            stack.pop()
+    return len(stack) == 0
 
 def remove_outer_parentheses(s):
     if s is None:
@@ -315,18 +327,68 @@ def checkIfEquivalent(reg1, reg2):
 
     return True
 
-def process_regex(event):
-    input_text = document.querySelector("#regex")
-    input_texto = document.querySelector("#input_string")
-    G = nx.DiGraph()
-    endkey = genGraph(input_text.value, 0, G)
+from collections import deque
 
-    ret = checkIfAccepted(G, input_texto.value, endkey)
-    return_text = ""
-    if ret:
-        return_text = "True"
+def genStrings(reg):
+    if (reg == ""): return sorted({""})
+    reg = reg.replace("e*", "e")    # fixes a infinite loop bug (nevertheless equal)
+
+    G = nx.DiGraph()
+    endKey = genGraph(reg, 0, G)
+
+    def getEpsilonClosure(state):   # gets all epsilon reachable states from current state
+        closure = [state]
+        stack = [state]
+        visited = {state: False for state in G.nodes}
+
+        while stack:
+            curr = stack.pop()
+            visited[curr] = True
+            for neighbor in G.neighbors(curr):
+                if not visited[neighbor]:             
+                    edge = G.edges[curr, neighbor]["label"]
+                    if edge == "\u03B5":
+                        closure.append(neighbor)
+                        stack.append(neighbor)
+        return closure
+    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
+    
+    string_list = set()
+    queue = deque([(0, "")])
+    while queue and len(string_list) < 20:
+        if random.choice([True, False]):
+            curr, string_achieved = queue.popleft()
+        else:
+            curr, string_achieved = queue.pop()
+
+        if (curr == endKey or endKey in EpsilonDict[curr]):
+           string_list.add(string_achieved)
+              
+        for neighbor in G.neighbors(curr):  
+            edge = G.edges[curr, neighbor].get("label", None)
+            if edge != "\u03B5":
+                queue.append((neighbor, string_achieved + edge))
+            else: 
+                queue.append((neighbor, string_achieved))
+    
+    string_list = {s if s != "" else "\u03B5" for s in string_list}
+
+    return_list = sorted(string_list)
+    if "\u03B5" in return_list: # move epsilon to the start of the list
+        return_list.insert(0, return_list.pop(return_list.index("\u03B5")))
+
+    return return_list
+
+def process_regex(event):
+    regex = document.querySelector("#regex")
+    input_text = document.querySelector("#input_string")
+    
+    if is_balanced(regex.value):
+        G = nx.DiGraph()
+        endkey = genGraph(regex.value, 0, G)
+        return_text = "True" if checkIfAccepted(G, input_text.value, endkey) else "False"
     else:
-        return_text = "False"
+        return_text = "Unclosed parentheses in the regex!"
     
     output_div = document.querySelector("#output")
     output_div.innerText = return_text
@@ -335,12 +397,21 @@ def check_equivalence(event):
     reg1 = document.querySelector("#regex1")
     reg2 = document.querySelector("#regex2")
     
-    ret = checkIfEquivalent(reg1.value, reg2.value)
-    return_text = ""
-    if ret:
-        return_text = "Equivalent"
+    if is_balanced(reg1.value) and is_balanced(reg2.value):
+        return_text = "Equivalent" if checkIfEquivalent(reg1.value, reg2.value) else "Not Equivalent"
     else:
-        return_text = "Not Equivalent"
+        return_text = "Unclosed parentheses in one of the expressions!"
 
     output_div = document.querySelector("#output2")
     output_div.innerText = return_text
+
+def gen_string(event):
+    reg = document.querySelector("#regex_to_display")
+
+    if is_balanced(reg.value):
+        ret = genStrings(reg.value)
+        ret = ", ".join(f"'{item}'" for item in ret)
+    else:
+        ret = "Unclosed parentheses!"
+    output_div = document.querySelector("#output3")
+    output_div.innerText = ret

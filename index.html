@@ -15,6 +15,19 @@
     ></script>   
   </head>
   <body>
+
+    <div class="container">
+      <h2>Regex String Generator 🧩</h2>
+      <p>Check out some strings in the language of a formal regular expression.</p>
+      <input
+      type="text"
+      id="regex_to_display"
+      placeholder="Type regex here..."
+      py-keyup="gen_string"
+      />
+      <div id="output3"></div>
+    </div>
+
     <div class="container">
       <h1>Regex Checker 🦜</h1>
       <p>Check if a formal regular expression accepts a string.</p>
