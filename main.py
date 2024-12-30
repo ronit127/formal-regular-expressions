@@ -103,7 +103,6 @@ def genGraph(reg_expr, start_key, G):   # returns end key
         return temp_key - 1
     
     parts = split_reg_expr(reg_expr)
-    print(parts)
     if len(parts) == 1:
         if "(" in reg_expr or ")" in reg_expr:
             before, paren, after = processParenthesis(reg_expr)
@@ -112,17 +111,16 @@ def genGraph(reg_expr, start_key, G):   # returns end key
             before = reg_expr[:kleene_index - 1]
             paren = reg_expr[kleene_index - 1]
             after = reg_expr[kleene_index:] 
-       
+    
         if len(before) > 0:
-            end_key = genGraph(before, temp_key + 1, G)
-            G.add_edge(start_key, temp_key + 1, label = "\u03B5")
+            end_key = genGraph(before, start_key + 1, G)
+            G.add_edge(start_key, start_key + 1, label = "\u03B5")
             temp_key = end_key
             start_key = end_key
         
         end_key = genGraph(paren, temp_key + 1, G)   
         G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge 
-        temp_key = end_key
-        
+
         if after.startswith("*"):       
             G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge    (end_key -> temp_key + 1)
             temp_key = end_key + 1
@@ -131,11 +129,12 @@ def genGraph(reg_expr, start_key, G):   # returns end key
             G.add_edge(end_key, temp_key, label = "\u03B5") 
             after = after[1:]
             end_key = temp_key
+        else: 
+            temp_key = end_key
 
         if len(after) > 0:
             end_key = genGraph(after, temp_key + 1, G)
             G.add_edge(temp_key, temp_key + 1, label = "\u03B5")
-            temp_key = end_key
         return end_key
 
     end_keys = []
