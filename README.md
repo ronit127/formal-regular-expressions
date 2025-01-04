@@ -12,7 +12,7 @@ All functionality on the website: https://ronit127.github.io/formal-regular-expr
   <img src="assets/image.png" style="width: 45%; height: auto;">
 </p>
 
-**Checks if any regex (on top) matches a user-inputted string. This is done by converting the regex into an NFA and then simulating the string on the NFA**
+**Checks if any regex (on top) matches a user-inputted string. This is done by converting the regex into an NFA and then simulating the string on the NFA.**
 
 <p align="left">
   <img src="assets/image0.png" style="width: 45%; height: auto;">
@@ -28,7 +28,7 @@ All functionality on the website: https://ronit127.github.io/formal-regular-expr
   <img src="assets/image1.png" style="width: 45%; height: auto;">
 </p>
 
-**Displays some of the strings in the language described by some regex. This is done by accumulating a list of *accepted* strings when simulating the regex's corresponding NFA**
+**Displays some of the strings in the language described by some regex. This is done by accumulating a list of *accepted* strings when simulating the regex's corresponding NFA.**
 
 ## Contributing
 
