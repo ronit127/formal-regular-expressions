@@ -88,16 +88,6 @@ def processParenthesis(s):
     else:
         return s, None, None
 
-def crush_epsilon(reg_expr):
-    result = []
-    for i, char in enumerate(reg_expr):
-        if char == 'e':
-            if i > 1 and reg_expr[i-1] in ["(", "+"]:
-                if i < len(reg_expr) - 1 and reg_expr[i+1] in [")", "+"]:
-                    result.append(char)
-        else: result.append(char)
-    return ''.join(result)
-
 def genGraph(reg_expr, start_key, G):   # returns end key
     reg_expr = remove_outer_parentheses(reg_expr)
     
@@ -330,9 +320,12 @@ def checkIfEquivalent(reg1, reg2):
 from collections import deque
 
 def genStrings(reg):
-    if (reg == ""): return sorted({""})
-    reg = reg.replace("e*", "e")    # fixes a infinite loop bug (nevertheless equal)
+    if (reg == "" or reg == "*"): return sorted({""})
 
+    reg = reg.replace(" ", "")
+    reg = reg.replace("+*", "+e*")
+    reg = reg.replace("e*", "e")    # fixes a infinite loop bug (nevertheless equal)
+    
     G = nx.DiGraph()
     endKey = genGraph(reg, 0, G)
 
