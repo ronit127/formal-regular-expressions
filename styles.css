@@ -11,6 +11,23 @@ body {
   overflow-x: hidden;
 }
 
+footer {
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  font-size: small;
+  margin-top: 20px;
+  width: 100%;
+  position: fixed;
+  bottom: 10px;
+  background-color: #ffffff; 
+  padding: 5px 0;
+  box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1); 
+}
+
+a {
+  color: #6b7280; 
+}
+
 .container {
   width: 90%;
   max-width: 600px;
@@ -18,15 +35,15 @@ body {
   padding: 25px 20px;
   margin-right: 25px;
   margin-left: 25px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); */
   text-align: center;
-  animation: slideIn 0.8s ease-out;
+  animation: slideIn 0.4s ease-out;
   transition: all 0.3s ease;
 }
 
 .container:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
   
 }
@@ -34,8 +51,16 @@ body {
 .note {
   color: #6b7280;
   font-style: italic;
-  font-size: 14px;
+  font-size: 13px;
   margin-top: 20px;
+  text-align: center;
+}
+
+.footer_note {
+  color: #6b7280;
+  font-style: bold;
+  font-size: 13px;
+  margin-top: 10px;
   text-align: center;
 }
 
@@ -45,7 +70,7 @@ h1 {
   margin-bottom: 15px;
   font-size: 2.5rem;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 1s ease-in-out;
+  animation: fadeIn 0.1s ease-in-out;
 }
 
 p {
@@ -53,17 +78,17 @@ p {
   font-size: 1.1rem;
   margin-bottom: 20px;
   line-height: 1.6;
-  animation: fadeIn 1.2s ease-in-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 input[type="text"] {
   width: 100%;
   max-width: auto; 
-  padding: 14px;
+  padding: 18px;
   margin-bottom: 15px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  /* box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); */
   transition: all 0.3s ease;
   font-size: 1rem;
   margin-left: auto;
@@ -79,11 +104,11 @@ input[type="text"]:focus {
 }
 
 button {
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: #29a67e;
   color: white;
   padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
+  border: #2a745c;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 600;
@@ -92,7 +117,7 @@ button {
 }
 
 button:hover {
-  background: linear-gradient(90deg, #059669, #047857);
+  background: #238f6d;
   transform: translateY(-1px) scale(1.01);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
@@ -108,7 +133,7 @@ button:active {
   border: 1px solid #d1d5db;
   border-radius: 12px;
   background: #f9fafb;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); */
   transition: all 0.3s ease;
   font-size: 1rem;
   text-align: left;
@@ -144,7 +169,7 @@ hr {
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
