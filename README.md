@@ -1,6 +1,6 @@
 # Formal-Regular-Expressions 🦜
 
-Formal-Regular-Expressions is a Python-based application that parses formal regexes, displaying some of the strings that the regular expression accepts, if the regular expression accepts any given string, and if two regular expressions are equivalent.
+Formal Regular Expressions is a Python-based application that parses formal regexes, displaying some of the strings that the regular expression accepts, if the regular expression accepts any given string, and if two regular expressions are equivalent.
 
 ## Website
 
