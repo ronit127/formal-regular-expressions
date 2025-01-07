@@ -5,7 +5,8 @@ from pyscript import document
 def isSimple(s):
     return "(" not in s and ")" not in s and "/" not in s and "+" not in s
 
-def is_balanced(s):     
+def is_balanced(s):
+    """Check if a string has balanced parentheses."""     
     stack = []
     for char in s:
         if char == '(':
@@ -17,69 +18,54 @@ def is_balanced(s):
     return len(stack) == 0
 
 def remove_outer_parentheses(s):
-    if s is None:
-        return None
-    
-    def is_balanced(string):
-        """Check if a string has balanced parentheses."""
-        stack = []
-        for char in string:
-            if char == '(':
-                stack.append(char)
-            elif char == ')':
-                if not stack:
-                    return False
-                stack.pop()
-        return not stack
-
+    """Removes the outer parentheses of a string."""
+    if s is None: return None
     # Keep removing outer parentheses only if they are balanced
     while s.startswith("(") and s.endswith(")") and is_balanced(s[1:-1]):
         s = s[1:-1]
     return s
 
 def split_reg_expr(expr):
+    """Split a string into a list of strings separated by +."""
     parts = []
     current_part = []
-    paren_depth = 0  # Track the depth of nested parentheses
+    paren_depth = 0  
 
-    # Loop through the characters of the expression
     for char in expr:
         if char == '(':
-            paren_depth += 1  # Entering a parenthesis block
+            paren_depth += 1 
             current_part.append(char)
         elif char == ')':
-            paren_depth -= 1  # Exiting a parenthesis block
+            paren_depth -= 1  
             current_part.append(char)
         elif char == '+' and paren_depth == 0:
-            # Split at the '+' only if we are not inside parentheses
             parts.append(''.join(current_part).strip())
             current_part = []
         else:
             current_part.append(char)
 
-    # Add the last part to the list
     parts.append(''.join(current_part).strip())
 
     return parts
 
 def processParenthesis(s):
+    """Given a string, return the substring before the first set of parantheses, the substring within that set of parantheses, and the rest of the string that follows."""
+
     if s is None: return s, None, None
     stack = []
     start = 0
     result = []
    
-    # Step through the string to find matching parentheses
     for i, char in enumerate(s):
         if char == '(':
             if not stack:
-                start = i  # Mark the start of the first parentheses
+                start = i 
             stack.append(char)
         elif char == ')':
             stack.pop()
-            if not stack:  # If stack is empty, we matched the outermost parentheses
+            if not stack:
                 result.append(s[start:i+1])
             
-    
     if result:
         before_parentheses = s.split(result[0])[0]
         first_parentheses = result[0]
@@ -88,12 +74,24 @@ def processParenthesis(s):
     else:
         return s, None, None
 
-def genGraph(reg_expr, start_key, G):   # returns end key
+def genGraph(reg_expr, start_key, G): 
+    """
+    Generates the graph corresponding to the NFA of the regular expression.
+
+    Args:
+        reg_expr (str): The expression for which the graph is generated for.
+        start_key (int): The starting key.
+        G (Graph): The graph.
+        
+    Returns:
+        int: the key of the last state.
+    """
+    reg_expr = reg_expr.replace("|", "+")
     reg_expr = remove_outer_parentheses(reg_expr)
     
-    G.add_node(start_key, label = "q") #q
+    G.add_node(start_key, label = "q") #starting state
     temp_key = start_key
- 
+    
     if isSimple(reg_expr) and "*" not in reg_expr:
         temp_key += 1
         for a, s in enumerate(reg_expr):
@@ -124,7 +122,7 @@ def genGraph(reg_expr, start_key, G):   # returns end key
         G.add_edge(temp_key, temp_key + 1, label = "\u03B5") # starting edge 
 
         if after.startswith("*"):       
-            G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge    (end_key -> temp_key + 1)
+            G.add_edge(end_key, temp_key, label = "\u03B5")  # looping back edge
             temp_key = end_key + 1
             G.add_node(temp_key, label = "f")
             G.add_edge(start_key, temp_key, label = "\u03B5")  # direct edge
@@ -140,36 +138,59 @@ def genGraph(reg_expr, start_key, G):   # returns end key
         return end_key
 
     end_keys = []
-    for part in parts:
+    for part in parts:  # process the various parts
           end_key = genGraph(part, temp_key + 1, G)
           G.add_edge(start_key, temp_key + 1, label = "\u03B5")
           temp_key = end_key
           end_keys.append(end_key)
     
     temp_key = max(end_keys) + 1
-    G.add_node(temp_key, label = "f") #f
+    G.add_node(temp_key, label = "f") #ending state
     for end_key in end_keys:
-        G.add_edge(end_key, temp_key, label = "\u03B5")
+        G.add_edge(end_key, temp_key, label = "\u03B5") # connecting the end keys of the various parts to the universal ending state
     return temp_key
 
-def checkIfAccepted(G, s, endKey):
-   
-    def getEpsilonClosure(state):   # gets all epsilon reachable states from current state
-        closure = [state]
-        stack = [state]
-        visited = {state: False for state in G.nodes}
+def getEpsilonClosure(G, state): 
+    """
+    Gets the states that are reachable from a state via epsilon transitions
 
-        while stack:
-            curr = stack.pop()
-            visited[curr] = True
-            for neighbor in G.neighbors(curr):
-                if not visited[neighbor]:             
-                    edge = G.edges[curr, neighbor]["label"]
-                    if edge == "\u03B5":
-                        closure.append(neighbor)
-                        stack.append(neighbor)
-        return closure
-    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
+    Args:
+        G (Graph): The graph.
+        state (int): The key for the state.
+
+    Returns:
+        set[int]: The set of states that are in the epsilon closure.
+    """
+
+    closure = {state}
+    stack = [state]
+    visited = {state: False for state in G.nodes}
+
+    while stack:
+        curr = stack.pop()
+        visited[curr] = True
+        for neighbor in G.neighbors(curr):
+            if not visited[neighbor]:             
+                edge = G.edges[curr, neighbor]["label"]
+                if edge == "\u03B5":
+                    closure.add(neighbor)
+                    stack.append(neighbor)
+    return closure
+
+def checkIfAccepted(G, s, endKey):
+    """
+    Checks if a string is accepted by the graph (NFA) corresponding to a regular expression
+
+    Args:
+        G (Graph): The graph.
+        s (str): The string being checked
+        endKey (int): The key that is the accepting state
+
+    Returns:
+        bool: True if s is accepted, False otherwise.
+    """
+
+    EpsilonDict = {state: getEpsilonClosure(G, state) for state in G.nodes}    # pre-compute epsilon closure for all states
     
     if s == "e": return endKey in EpsilonDict[0]
     stack = []
@@ -190,22 +211,9 @@ def checkIfAccepted(G, s, endKey):
     return False
 
 def NFAtoDFA(G):
-    def getEpsilonClosure(state):   # gets all a- reachable states from current state (reachable to the state but not beyond)
-        closure = {state}
-        stack = [state]
-        visited = {state: False for state in G.nodes}
-
-        while stack:
-            curr = stack.pop()
-            visited[curr] = True
-            for neighbor in G.neighbors(curr):
-                if not visited[neighbor]:             
-                    edge = G.edges[curr, neighbor]["label"]
-                    if edge == "\u03B5":
-                        closure.add(neighbor)
-                        stack.append(neighbor)
-        return closure
-    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
+    """Converts a NFA into a DFA."""
+    
+    EpsilonDict = {state: getEpsilonClosure(G, state) for state in G.nodes}    # pre-compute epsilon closure for all states
     
     H = nx.MultiDiGraph()
     start_state = tuple(sorted(EpsilonDict[0]))
@@ -234,9 +242,6 @@ def NFAtoDFA(G):
                 H.add_edge(tuple(sorted(curr_state)), tuple(sorted(new_state)), label = a)
                 if len(new_state) != 0:
                     stack.append(tuple(sorted(new_state)))
-            # if len(new_state) == 0:
-            #     for a in alphabet:
-            #         H.add_edge(tuple(sorted(new_state)), tuple(sorted(new_state)), label = a)
     
     if () in H.nodes():
         for a in alphabet:
@@ -250,6 +255,17 @@ def NFAtoDFA(G):
     return H
 
 def checkIfEquivalent(reg1, reg2):
+    """
+    Determines whether two regular expressions are equivalent, that is, they express the same language.
+
+    Args:
+        reg1 (str): The first regular expression.
+        reg2 (str): The second regular expression.
+
+    Returns:
+        bool: True if the two regular expressions are equivalent, False otherwise.
+    """
+
     if reg1 == "" or reg2 == "" and reg1 != reg2: return False
     G1 = nx.DiGraph()
     G2 = nx.DiGraph()
@@ -320,6 +336,16 @@ def checkIfEquivalent(reg1, reg2):
 from collections import deque
 
 def genStrings(reg):
+    """
+    Generates a list of strings generated by the regular expression.
+
+    Args:
+        reg (str): The first regular expression.
+
+    Returns:
+        list[str]: A list of (upto 20) strings from the language of the regular expression.
+    """
+
     if (reg == "" or reg == "*"): return sorted({""})
 
     reg = reg.replace(" ", "")
@@ -329,22 +355,7 @@ def genStrings(reg):
     G = nx.DiGraph()
     endKey = genGraph(reg, 0, G)
 
-    def getEpsilonClosure(state):   # gets all epsilon reachable states from current state
-        closure = [state]
-        stack = [state]
-        visited = {state: False for state in G.nodes}
-
-        while stack:
-            curr = stack.pop()
-            visited[curr] = True
-            for neighbor in G.neighbors(curr):
-                if not visited[neighbor]:             
-                    edge = G.edges[curr, neighbor]["label"]
-                    if edge == "\u03B5":
-                        closure.append(neighbor)
-                        stack.append(neighbor)
-        return closure
-    EpsilonDict = {state: getEpsilonClosure(state) for state in G.nodes}    # pre-compute epsilon closure for all states
+    EpsilonDict = {state: getEpsilonClosure(G, state) for state in G.nodes}    # pre-compute epsilon closure for all states
     
     string_list = set()
     queue = deque([(0, "")])
